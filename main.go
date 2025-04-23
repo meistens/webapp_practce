@@ -11,11 +11,24 @@ func home(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("some words"))
 }
 
+// add a snippetCreate and snippetView handler function
+func snippetCreate(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("create some stuff..."))
+}
+func snippetView(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("show some stuff..."))
+}
+
 func main() {
 	// use the http.NewServerMux() func to init a new server
 	// then register the home func as the handler for the "/" url pattern
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", home)
+
+	// register the two new handler funcs and corresponding URL patterns with
+	// the servemux, same way as the first one
+	mux.HandleFunc("/snippet/view", snippetView)
+	mux.HandleFunc("/snippet/create", snippetCreate)
 
 	// use the http.ListenAndServe() func to start a new web server
 	// pass in 2 params: TCP to listen on and ServeMux just created
