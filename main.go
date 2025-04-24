@@ -8,6 +8,15 @@ import (
 // defne a home handler function which writes a byte slice containing
 // "some words" as the response body
 func home(w http.ResponseWriter, r *http.Request) {
+	// check if the current request URL path exactly matches "/"
+	// if it doesn't, use http.NotFound() to send a 404
+	// return from the handler for normal ops
+	// if not returned from the handler, keep executing and also
+	// write the "some words"
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
 	w.Write([]byte("some words"))
 }
 
