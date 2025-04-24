@@ -22,6 +22,12 @@ func home(w http.ResponseWriter, r *http.Request) {
 
 // add a snippetCreate and snippetView handler function
 func snippetCreate(w http.ResponseWriter, r *http.Request) {
+	// use r.Method to check if request is using POST or not
+	if r.Method != "POST" {
+		w.WriteHeader(405)
+		w.Write([]byte("method not allowed"))
+		return
+	}
 	w.Write([]byte("create some stuff..."))
 }
 func snippetView(w http.ResponseWriter, r *http.Request) {
