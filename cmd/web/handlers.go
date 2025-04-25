@@ -17,6 +17,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 	// base template should be the first
 	files := []string{
 		"./ui/html/base.tmpl",
+		"./ui/html/partials/nav.tmpl",
 		"./ui/html/pages/home.tmpl",
 	}
 	// use template.ParseFiles() to read template into template
