@@ -13,28 +13,29 @@ func home(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-
+	// init a slice containing the paths to the two files
+	// base template should be the first
+	files := []string{
+		"./ui/html/base.tmpl",
+		"./ui/html/pages/home.tmpl",
+	}
 	// use template.ParseFiles() to read template into template
 	// set
 	// if error, log the detailed error msg and use the http.Error()
 	// to send a generic 500 to user
-	ts, err := template.ParseFiles("./ui/html/pages/home.tmpl")
+	ts, err := template.ParseFiles(files...)
 	if err != nil {
 		log.Println(err.Error())
 		http.Error(w, "internal server err", 500)
 		return
 	}
-	// use the Execute() method on template set to write the
-	// template content as the response body
-	// the last param to Execute() reps. any dynamic data we
-	// want to pass in (for now, it is nil)
-	err = ts.Execute(w, nil)
+	// use ExecuteTemplate() to write the content of the "base" template
+	// as rresponse body
+	err = ts.ExecuteTemplate(w, "base", nil)
 	if err != nil {
 		log.Println(err.Error())
 		http.Error(w, "internal error", 500)
 	}
-
-	w.Write([]byte("hello..."))
 }
 
 func snippetView(w http.ResponseWriter, r *http.Request) {
