@@ -31,7 +31,16 @@ func main() {
 	mux.HandleFunc("/snippet/view", snippetView)
 	mux.HandleFunc("/snippet/create", snippetCreate)
 
+	// init. a new http.Server struct
+	// setup addr and handler so the server uses the same network as before
+	// set errLog so server uses custom error logger
+	srv := &http.Server{
+		Addr:     *addr,
+		ErrorLog: errLog,
+		Handler:  mux,
+	}
+
 	infoLog.Printf("\nstarting server on %s", *addr)
-	err := http.ListenAndServe(*addr, mux)
+	err := srv.ListenAndServe()
 	errLog.Fatal(err)
 }
