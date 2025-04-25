@@ -22,14 +22,10 @@ func home(w http.ResponseWriter, r *http.Request) {
 
 // add a snippetCreate and snippetView handler function
 func snippetCreate(w http.ResponseWriter, r *http.Request) {
-	// use r.Method to check if request is using POST or not
-	if r.Method != "POST" {
-		// use header().set() method to add an 'Allow:POST' header
-		// to the response header map to make sure others know what
-		// is allowed
-		w.Header().Set("Allow", "POST")
-		// use this func. instead of the two-time one used previously (vc)
-		http.Error(w, "Method Not Allowed", 405)
+	// refactor (check vc for the diff)
+	if r.Method != http.MethodPost {
+		w.Header().Set("Allow", http.MethodPost)
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	w.Write([]byte("create some stuff..."))
