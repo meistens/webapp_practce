@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
@@ -12,6 +13,11 @@ func main() {
 	// parse command to... its obvious what it does...
 	addr := flag.String("addr", ":4000", "http network address")
 	flag.Parse()
+
+	// log.New() for creating a logger for wrting info. msgs
+	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	// same as infoLog, but stderr is the dest.
+	errLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
 	mux := http.NewServeMux()
 
@@ -25,7 +31,7 @@ func main() {
 	mux.HandleFunc("/snippet/view", snippetView)
 	mux.HandleFunc("/snippet/create", snippetCreate)
 
-	log.Printf("\nstarting server on %s", *addr)
+	infoLog.Printf("\nstarting server on %s", *addr)
 	err := http.ListenAndServe(*addr, mux)
-	log.Fatal(err)
+	errLog.Fatal(err)
 }
