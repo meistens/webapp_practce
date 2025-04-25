@@ -11,7 +11,7 @@ import (
 // against *application
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
-		http.NotFound(w, r)
+		app.notFound(w)
 		return
 	}
 	// init a slice containing the paths to the two files
@@ -27,25 +27,21 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	// to send a generic 500 to user
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		// now that home handler func. is now a method against application
-		// it can access its fields, including the error logger
-		app.errLog.Println(err.Error())
-		http.Error(w, "internal server err", 500)
+		app.serverErr(w, err)
 		return
 	}
 	// use ExecuteTemplate() to write the content of the "base" template
-	// as rresponse body
+	// as response body
 	err = ts.ExecuteTemplate(w, "base", nil)
 	if err != nil {
-		app.errLog.Println(err.Error())
-		http.Error(w, "internal error", 500)
+		app.serverErr(w, err)
 	}
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil || id < 1 {
-		http.NotFound(w, r)
+		app.notFound(w)
 		return
 	}
 	fmt.Fprintf(w, "display a specific snippet with ID %d", id)
@@ -54,7 +50,7 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.Header().Set("Allow", http.MethodPost)
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		app.clientErr(w, http.StatusMethodNotAllowed)
 		return
 	}
 	w.Write([]byte("creating something..."))
