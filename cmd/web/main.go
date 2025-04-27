@@ -8,47 +8,43 @@ import (
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/meistens/snippetbox/internal/models"
 )
 
-// dependency injection, might be different if using imported packages
-// basically, struct holds app-wide dependencies to be used
+// Add a snippets field to the application struct. This will allow us to
+// make the SnippetModel object available to our handlers.
 type application struct {
-	errLog  *log.Logger
-	infoLog *log.Logger
+	errorLog *log.Logger
+	infoLog  *log.Logger
+	snippets *models.SnippetModel
 }
 
-// copy-paste, check VC for how it came to this
 func main() {
 	addr := flag.String("addr", ":4000", "HTTP network address")
-	// new cmd flag for mysql dsn string
 	dsn := flag.String("dsn", "web:password@/snippetbox?parseTime=true", "MySQL data source name")
 	flag.Parse()
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
-	errLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
-
-	// db here
+	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 	db, err := openDB(*dsn)
 	if err != nil {
-		errLog.Fatal(err)
+		errorLog.Fatal(err)
 	}
-
-	// defer call to db.Close() so pool closes before the main() exits
 	defer db.Close()
-
+	// Initialize a models.SnippetModel instance and add it to the application
+	// dependencies.
 	app := &application{
-		errLog:  errLog,
-		infoLog: infoLog,
+		errorLog: errorLog,
+		infoLog:  infoLog,
+		snippets: &models.SnippetModel{DB: db},
 	}
 	srv := &http.Server{
 		Addr:     *addr,
-		ErrorLog: errLog,
-		// Call the new app.routes() method to get the servemux containing our routes.
-		Handler: app.routes(),
+		ErrorLog: errorLog,
+		Handler:  app.routes(),
 	}
 	infoLog.Printf("Starting server on %s", *addr)
-	// to get rid of no new vars left side of :=, remove :
 	err = srv.ListenAndServe()
-	errLog.Fatal(err)
+	errorLog.Fatal(err)
 }
 
 func openDB(dsn string) (*sql.DB, error) {

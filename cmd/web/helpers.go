@@ -10,7 +10,7 @@ import (
 // sends a generic 500 response to the user
 func (app *application) serverErr(w http.ResponseWriter, err error) {
 	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
-	app.errLog.Output(2, trace)
+	app.errorLog.Output(2, trace)
 
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 }
