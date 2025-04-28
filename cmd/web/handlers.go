@@ -3,42 +3,40 @@ package main
 import (
 	"errors"
 	"fmt"
-	"html/template"
 	"net/http"
 	"strconv"
 
 	"github.com/meistens/snippetbox/internal/models"
 )
 
-// modify func. sign. of home handler so it is defined as a method
-// against *application
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		app.notFound(w)
 		return
 	}
-	// init a slice containing the paths to the two files
-	// base template should be the first
-	files := []string{
-		"./ui/html/base.tmpl",
-		"./ui/html/partials/nav.tmpl",
-		"./ui/html/pages/home.tmpl",
-	}
-	// use template.ParseFiles() to read template into template
-	// set
-	// if error, log the detailed error msg and use the http.Error()
-	// to send a generic 500 to user
-	ts, err := template.ParseFiles(files...)
+	snippets, err := app.snippets.Latest()
 	if err != nil {
 		app.serverErr(w, err)
 		return
 	}
-	// use ExecuteTemplate() to write the content of the "base" template
-	// as response body
-	err = ts.ExecuteTemplate(w, "base", nil)
-	if err != nil {
-		app.serverErr(w, err)
+	for _, snippet := range snippets {
+		fmt.Fprintf(w, "%+v\n", snippet)
 	}
+
+	// files := []string{
+	// "./ui/html/base.tmpl",
+	// "./ui/html/partials/nav.tmpl",
+	// "./ui/html/pages/home.tmpl",
+	// }
+	// ts, err := template.ParseFiles(files...)
+	// if err != nil {
+	// app.serverError(w, err)
+	// return
+	// }
+	// err = ts.ExecuteTemplate(w, "base", nil)
+	// if err != nil {
+	// app.serverError(w, err)
+	// }
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
